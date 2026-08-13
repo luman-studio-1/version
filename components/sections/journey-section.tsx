@@ -83,7 +83,13 @@ function Journey3D() {
 export default function JourneySection() {
   const enabled = useJourneyCapability();
 
-  if (enabled === null) return null;
-  if (!enabled) return <StoryScrollSection />;
-  return <Journey3D />;
+  // Default to the DOM fallback, not null: this is what the server renders
+  // and what every client sees on first paint, before the capability check
+  // (prefers-reduced-motion / touch / hardwareConcurrency) can run — that
+  // check needs the browser and can only resolve in an effect. Rendering
+  // null here would mean the entire hero is blank HTML until hydration
+  // finishes, which is worse than a brief flash of the fallback before a
+  // capable desktop upgrades to the 3D journey.
+  if (enabled) return <Journey3D />;
+  return <StoryScrollSection />;
 }
